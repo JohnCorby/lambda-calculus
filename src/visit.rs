@@ -1,3 +1,7 @@
+//! turns pest ast into our own
+//!
+//! also calculates index for easy eq
+
 use crate::ast::*;
 use crate::parse::{Kind, Node};
 use std::rc::Rc;
@@ -39,16 +43,16 @@ impl Visit for App {
     fn visit(node: Node) -> Self {
         let mut nodes = node.children();
         // left assoc
-        let mut left = nodes.next().unwrap().visit::<Term>();
-        for right in nodes {
-            left = Term::App(Self {
-                func: left.into(),
-                arg: right.visit::<Term>().into(),
-            })
+        let mut app = Self {
+            func: nodes.next().unwrap().visit::<Term>().into(),
+            arg: nodes.next().unwrap().visit::<Term>().into(),
+        };
+        for node in nodes {
+            app = Self {
+                func: Term::App(app).into(),
+                arg: node.visit::<Term>().into(),
+            }
         }
-        match left {
-            Term::App(i) => i,
-            _ => unreachable!(),
-        }
+        app
     }
 }

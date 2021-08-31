@@ -6,11 +6,12 @@ use std::ops::Deref;
 pub trait AConv {
     fn a_conv(self, bounded: &mut HashMap<Var, usize>) -> Self;
 
-    fn a_eq(self, other: Self) -> bool
+    fn a_eq(&self, other: &Self) -> bool
     where
-        Self: Sized + PartialEq,
+        Self: Sized + Clone + PartialEq,
     {
-        self.a_conv(&mut Default::default()) == other.a_conv(&mut Default::default())
+        self.clone().a_conv(&mut Default::default())
+            == other.clone().a_conv(&mut Default::default())
     }
 }
 

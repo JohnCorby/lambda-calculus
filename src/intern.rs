@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use parking_lot::Mutex;
+use std::collections::HashSet;
 
 pub trait Intern {
     /// insert self into static list of strings, or return already existing
