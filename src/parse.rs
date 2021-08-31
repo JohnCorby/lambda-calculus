@@ -1,10 +1,8 @@
-use crate::error::{IntoErr, Res};
-use crate::span::Span;
-use crate::util::IterExt;
+use anyhow::Context;
 use console::style;
 use pest::error::Error;
 use pest::iterators::{Pair, Pairs};
-use pest::Parser;
+use pest::{Parser, Span};
 use std::fmt::{Debug, Display, Formatter};
 
 pub type Kind = inner::Rule;
@@ -19,11 +17,11 @@ impl From<Pair<'static, Kind>> for Node {
 }
 impl Node {
     /// parse an input string into a node based on a kind
-    pub fn parse(input: &'static str, kind: Kind) -> Res<Self> {
+    pub fn parse(input: &'static str, kind: Kind) -> anyhow::Result<Self> {
         let result: Result<Pairs<'static, Kind>, Error<Kind>> = inner::Parser::parse(kind, input);
         result
             .map(|pairs| Nodes::from(pairs).next().unwrap())
-            .map_err(|e| e.into_err(None))
+            .context("")
     }
 
     pub fn children(self) -> Nodes {
@@ -33,7 +31,7 @@ impl Node {
         self.0.as_rule()
     }
     pub fn span(&self) -> Span {
-        self.0.as_span().into()
+        self.0.as_span()
     }
     pub fn str(&self) -> &'static str {
         self.0.as_str()
@@ -64,7 +62,11 @@ impl Display for Node {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         let kind = style(self.kind());
         let str = style(self.str());
-        let children = self.clone().children().map(|node| node.to_string()).vec();
+        let children = self
+            .clone()
+            .children()
+            .map(|node| node.to_string())
+            .collect::<Vec<_>>();
         if children.is_empty() {
             write!(f, "{:?}({:?})", kind.red(), str.blue())
         } else if children.len() == 1 {
@@ -99,7 +101,10 @@ impl Display for Nodes {
         write!(
             f,
             "[{}]",
-            self.clone().map(|node| node.to_string()).vec().join(", ")
+            self.clone()
+                .map(|node| node.to_string())
+                .collect::<Vec<_>>()
+                .join(", ")
         )
     }
 }
@@ -110,7 +115,7 @@ impl Debug for Nodes {
 }
 
 mod inner {
-    #[derive(Parser)]
+    #[derive(pest_derive::Parser)]
     #[grammar = "grammar.pest"]
     pub struct Parser;
 }

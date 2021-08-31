@@ -1,0 +1,54 @@
+use crate::ast::*;
+use crate::parse::{Kind, Node};
+use std::rc::Rc;
+
+pub trait Visit {
+    fn visit(node: Node) -> Self;
+}
+impl Node {
+    pub fn visit<V: Visit>(self) -> V {
+        V::visit(self)
+    }
+}
+
+impl Visit for Term {
+    fn visit(node: Node) -> Self {
+        match node.kind() {
+            Kind::var => Self::Var(node.visit()),
+            Kind::abs => Self::Abs(node.visit()),
+            Kind::app => Self::App(node.visit()),
+            _ => unreachable!(node),
+        }
+    }
+}
+impl Visit for Var {
+    fn visit(node: Node) -> Self {
+        Self(node.str())
+    }
+}
+impl Visit for Abs {
+    fn visit(node: Node) -> Self {
+        let mut nodes = node.children();
+        Self {
+            param: nodes.next().unwrap().visit(),
+            body: Rc::new(nodes.next().unwrap().visit()),
+        }
+    }
+}
+impl Visit for App {
+    fn visit(node: Node) -> Self {
+        let mut nodes = node.children();
+        // left assoc
+        let mut left = nodes.next().unwrap().visit::<Term>();
+        for right in nodes {
+            left = Term::App(Self {
+                func: left.into(),
+                arg: right.visit::<Term>().into(),
+            })
+        }
+        match left {
+            Term::App(i) => i,
+            _ => unreachable!(),
+        }
+    }
+}
