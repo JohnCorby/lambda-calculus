@@ -3,41 +3,39 @@
 #![feature(option_result_unwrap_unchecked)]
 #![feature(hash_set_entry)]
 
-use crate::a_convert::AConvert;
+use crate::a_conv::AConv;
 use crate::ast::Term;
 use crate::parse::{Kind, Node};
 
-mod a_convert;
+mod a_conv;
 mod ast;
 mod intern;
 mod parse;
 mod visit;
 
 fn main() {
-    println!(
-        "{}",
-        Node::parse("M N P", Kind::input).unwrap().visit::<Term>()
-    );
-    println!(
-        "{}",
-        Node::parse("λx. M N", Kind::input).unwrap().visit::<Term>()
-    );
+    println!("{}", input("M N P"));
+    println!("{}", input("M N P").a_conv(&mut Default::default()));
+    println!("{}", input("λx. M N x"));
+    println!("{}", input("λx. M N x").a_conv(&mut Default::default()));
 
-    let node = Node::parse("λx. λy. x", Kind::input).unwrap();
-    println!("{}", node);
-    let term = node.visit::<Term>();
+    let term = input("λx. λy. x");
     println!("{}", term);
-    println!("{}", term.a_convert(&mut Default::default()));
+    println!("{}", term.a_conv(&mut Default::default()));
 
-    let node = Node::parse("λx. λy. λz. x z (y z)", Kind::input).unwrap();
-    println!("{}", node);
-    let term = node.visit::<Term>();
+    let term = input("λx. λy. λz. x z (y z)");
     println!("{}", term);
-    println!("{}", term.a_convert(&mut Default::default()));
+    println!("{}", term.a_conv(&mut Default::default()));
 
-    let node = Node::parse("λz. (λy. y (λx. x)) (λx. z x)", Kind::input).unwrap();
-    println!("{}", node);
-    let term = node.visit::<Term>();
+    let term = input("λz. (λy. y (λx. x)) (λx. z x)");
     println!("{}", term);
-    println!("{}", term.a_convert(&mut Default::default()));
+    println!("{}", term.a_conv(&mut Default::default()));
+
+    println!("{}", input("λx.x").a_eq(input("λy.y")));
+    println!("{}", input("λx.x").a_eq(input("λx.y")));
+    println!("{}", input("x").a_eq(input("y")));
+}
+
+fn input(input: &'static str) -> Term {
+    Node::parse(input, Kind::input).unwrap().visit()
 }

@@ -2,7 +2,7 @@ input = _{ SOI ~ term ~ EOI }
 
 term = _{ abs | app | var | "(" ~ term ~ ")" }
 abs = { "λ" ~ var ~ "." ~ term }
-app = { app_term ~ app_term+ } // left assoc
+app = { app_term{2, } } // left assoc
 app_term = _{ abs | var | "(" ~ term ~ ")" }
 var = @{ ASCII_ALPHA ~ (ASCII_ALPHA | ASCII_DIGIT | "_" )* }
 
