@@ -2,6 +2,7 @@
 
 #![feature(option_result_unwrap_unchecked)]
 #![feature(hash_set_entry)]
+#![feature(box_patterns)]
 
 use crate::ast::Term;
 use crate::parse::{Kind, Node};
@@ -11,6 +12,7 @@ mod ast;
 mod b_reduce;
 mod free_vars;
 mod intern;
+mod n_reduce;
 mod parse;
 mod subst;
 mod visit;
@@ -47,8 +49,18 @@ fn main() {
     println!("{}", term);
     println!("{:?}", term.free_vars());
     println!("{}", term.a_conv());
+
+    println!("{}", input("(λV.M) N").b_reduce());
+    println!(
+        "{}",
+        input("(λx.λy.(λz.(λx.z x) (λy.z y)) (x y))").b_reduce()
+    );
+
+    println!("{}", input(r"\x.f x").n_reduce());
+    println!("{}", input(r"\x.(\z. x) x").n_reduce());
 }
 
 fn input(input: &'static str) -> Term {
     Node::parse(input, Kind::input).unwrap().visit()
 }
+fn run(term: Term) {}

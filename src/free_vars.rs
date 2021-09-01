@@ -27,8 +27,8 @@ impl Abs {
 }
 impl App {
     fn free_vars(&self) -> HashSet<Var> {
-        let mut set = self.func.free_vars();
-        set.extend(self.arg.free_vars());
+        let mut set = self.left.free_vars();
+        set.extend(self.right.free_vars());
         set
     }
 }

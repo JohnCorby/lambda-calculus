@@ -3,6 +3,8 @@ use crate::intern::Intern;
 use std::collections::HashMap;
 
 impl Term {
+    /// also applies unique name for every bound variable, no matter the scope,
+    /// rather than just fixing shadowing
     pub fn a_conv(self) -> Self {
         self.a_conv_(&mut HashMap::new(), &mut 0)
     }
@@ -39,8 +41,8 @@ impl Abs {
 }
 impl App {
     fn a_conv(mut self, bounded: &mut HashMap<Var, usize>, next: &mut usize) -> Self {
-        *self.func = self.func.a_conv_(bounded, next);
-        *self.arg = self.arg.a_conv_(bounded, next);
+        *self.left = self.left.a_conv_(bounded, next);
+        *self.right = self.right.a_conv_(bounded, next);
         self
     }
 }

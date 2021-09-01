@@ -18,8 +18,8 @@ impl Abs {
 }
 impl App {
     fn subst(mut self) -> Self {
-        *self.func = self.func.subst();
-        *self.arg = self.arg.subst();
+        *self.left = self.left.subst();
+        *self.right = self.right.subst();
         self
     }
 }
@@ -31,14 +31,14 @@ impl Subst {
             Var(_) => *self.to_term,
 
             App(in_app) => App(self::App {
-                func: Subst(self::Subst {
-                    in_term: in_app.func,
+                left: Subst(self::Subst {
+                    in_term: in_app.left,
                     from_var: self.from_var,
                     to_term: self.to_term.clone(),
                 })
                 .into(),
-                arg: Subst(self::Subst {
-                    in_term: in_app.arg,
+                right: Subst(self::Subst {
+                    in_term: in_app.right,
                     from_var: self.from_var,
                     to_term: self.to_term,
                 })

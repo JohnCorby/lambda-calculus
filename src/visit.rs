@@ -43,13 +43,13 @@ impl Visit for App {
         let mut nodes = node.children();
         // left assoc
         let mut app = Self {
-            func: nodes.next().unwrap().visit::<Term>().into(),
-            arg: nodes.next().unwrap().visit::<Term>().into(),
+            left: nodes.next().unwrap().visit::<Term>().into(),
+            right: nodes.next().unwrap().visit::<Term>().into(),
         };
         for node in nodes {
             app = Self {
-                func: Term::App(app).into(),
-                arg: node.visit::<Term>().into(),
+                left: Term::App(app).into(),
+                right: node.visit::<Term>().into(),
             }
         }
         app

@@ -54,12 +54,12 @@ impl Debug for Abs {
 
 #[derive(Clone, PartialEq)]
 pub struct App {
-    pub func: Box<Term>,
-    pub arg: Box<Term>,
+    pub left: Box<Term>,
+    pub right: Box<Term>,
 }
 impl Display for App {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "({} {})", self.func, self.arg)
+        write!(f, "({} {})", self.left, self.right)
     }
 }
 impl Debug for App {
@@ -78,7 +78,7 @@ impl Display for Subst {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         write!(
             f,
-            "{{{} := {} in {}}}",
+            "{{{} => {} in {}}}",
             self.from_var, self.to_term, self.in_term
         )
     }
