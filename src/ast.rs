@@ -1,7 +1,6 @@
 use std::fmt::{Debug, Display, Formatter};
-use std::rc::Rc;
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Clone, PartialEq)]
 pub enum Term {
     Var(Var),
     Abs(Abs),
@@ -10,9 +9,9 @@ pub enum Term {
 impl Display for Term {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
-            Self::Var(i) => Display::fmt(i, f),
-            Self::Abs(i) => Display::fmt(i, f),
-            Self::App(i) => Display::fmt(i, f),
+            Self::Var(var) => Display::fmt(var, f),
+            Self::Abs(abs) => Display::fmt(abs, f),
+            Self::App(app) => Display::fmt(app, f),
         }
     }
 }
@@ -35,10 +34,10 @@ impl Debug for Var {
     }
 }
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Clone, PartialEq)]
 pub struct Abs {
     pub param: Var,
-    pub body: Rc<Term>,
+    pub body: Box<Term>,
 }
 impl Display for Abs {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
@@ -51,10 +50,10 @@ impl Debug for Abs {
     }
 }
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Clone, PartialEq)]
 pub struct App {
-    pub func: Rc<Term>,
-    pub arg: Rc<Term>,
+    pub func: Box<Term>,
+    pub arg: Box<Term>,
 }
 impl Display for App {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {

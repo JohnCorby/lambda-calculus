@@ -10,6 +10,7 @@
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/parking_lot_core-58d317b54e15cd88/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/winapi-593970b0b0d6a229/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/winapi-f97616687054019f/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/indexmap-a83b26e4c02cb96c/out" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

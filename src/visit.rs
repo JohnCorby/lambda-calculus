@@ -4,9 +4,8 @@
 
 use crate::ast::*;
 use crate::parse::{Kind, Node};
-use std::rc::Rc;
 
-pub trait Visit {
+trait Visit {
     fn visit(node: Node) -> Self;
 }
 impl Node {
@@ -35,7 +34,7 @@ impl Visit for Abs {
         let mut nodes = node.children();
         Self {
             param: nodes.next().unwrap().visit(),
-            body: Rc::new(nodes.next().unwrap().visit()),
+            body: nodes.next().unwrap().visit::<Term>().into(),
         }
     }
 }
