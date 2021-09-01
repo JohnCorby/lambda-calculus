@@ -1,6 +1,9 @@
 use crate::ast::*;
 
 impl Term {
+    /// yeah i dont really like this one
+    ///
+    /// so i dont use it
     pub fn n_reduce(self) -> Self {
         match self {
             Self::Var(var) => Self::Var(var),

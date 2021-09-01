@@ -9,7 +9,7 @@ impl Term {
         self.a_conv_(&mut HashMap::new(), &mut 0)
     }
     pub fn a_eq(&self, other: &Self) -> bool {
-        self.clone().a_conv() == other.clone().a_conv_(&mut HashMap::new(), &mut 0)
+        self.clone().a_conv() == other.clone().a_conv()
     }
 
     fn a_conv_(self, bounded: &mut HashMap<Var, usize>, next: &mut usize) -> Self {
