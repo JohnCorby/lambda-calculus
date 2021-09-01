@@ -48,8 +48,7 @@ impl Subst {
             }),
 
             Abs(in_abs)
-                if self.from_var != in_abs.param
-                    && !self.to_term.free_vars().contains(&in_abs.param) =>
+                if self.from_var != in_abs.param && !in_abs.param.is_free_in(&self.to_term) =>
             {
                 Abs(self::Abs {
                     param: in_abs.param,

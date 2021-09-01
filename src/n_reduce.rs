@@ -23,7 +23,7 @@ impl Abs {
                         left,
                         right: box Term::Var(right_var),
                     }),
-            } if param == right_var && !left.free_vars().contains(&right_var) => *left,
+            } if param == right_var && !right_var.is_free_in(&left) => *left,
 
             _ => {
                 *self.body = self.body.n_reduce();

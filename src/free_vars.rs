@@ -2,7 +2,7 @@ use crate::ast::*;
 use std::collections::HashSet;
 
 impl Term {
-    pub fn free_vars(&self) -> HashSet<Var> {
+    fn free_vars(&self) -> HashSet<Var> {
         match self {
             Self::Var(var) => var.free_vars(),
             Self::Abs(abs) => abs.free_vars(),
@@ -12,6 +12,10 @@ impl Term {
     }
 }
 impl Var {
+    pub fn is_free_in(&self, term: &Term) -> bool {
+        term.free_vars().contains(self)
+    }
+
     fn free_vars(&self) -> HashSet<Var> {
         let mut set = HashSet::new();
         set.insert(*self);
