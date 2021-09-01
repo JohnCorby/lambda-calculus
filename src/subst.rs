@@ -31,17 +31,19 @@ impl Subst {
             Var(_) => *self.to_term,
 
             App(in_app) => App(self::App {
-                left: Subst(self::Subst {
+                left: self::Subst {
                     in_term: in_app.left,
                     from_var: self.from_var,
                     to_term: self.to_term.clone(),
-                })
+                }
+                .subst()
                 .into(),
-                right: Subst(self::Subst {
+                right: self::Subst {
                     in_term: in_app.right,
                     from_var: self.from_var,
                     to_term: self.to_term,
-                })
+                }
+                .subst()
                 .into(),
             }),
 
@@ -51,11 +53,12 @@ impl Subst {
             {
                 Abs(self::Abs {
                     param: in_abs.param,
-                    body: Subst(self::Subst {
+                    body: self::Subst {
                         in_term: in_abs.body,
                         from_var: self.from_var,
                         to_term: self.to_term,
-                    })
+                    }
+                    .subst()
                     .into(),
                 })
             }

@@ -63,6 +63,7 @@ fn main() {
     println!("{}", input(r"\x.(\z. x) x").n_reduce());
 
     input(r"(\x.x x)(\x.x x)").run();
+    input(r"(\x.x x x)(\x.x x)").run();
 }
 
 fn input(input: &'static str) -> Term {
@@ -75,35 +76,23 @@ impl Term {
         println!("a_conv {}", self);
 
         const ITERATIONS: usize = 10;
-        let mut terminated = false;
         let mut last_self;
         for _ in 0..ITERATIONS {
             last_self = self.clone();
-            self = self.n_reduce();
             self = self.b_reduce();
             if last_self == self {
-                terminated = true;
-                break;
+                println!("END {}", self);
+                return self;
             }
-            println!("n_reduce, b_reduce {}", self);
-
-            for _ in 0..ITERATIONS {
-                last_self = self.clone();
-                self = self.subst();
-                if last_self == self {
-                    break;
-                }
-                println!("subst {}", self);
-            }
+            println!("b_reduce {}", self);
+            self = self.subst();
+            println!("subst {}", self);
+            self = self.n_reduce();
+            println!("n_reduce {}", self);
         }
-        if !terminated {
-            panic!(
-                "run {} didn't terminate after {} iterations",
-                self, ITERATIONS
-            )
-        }
-
-        println!("END {}", self);
-        self
+        panic!(
+            "run {} didn't terminate after {} iterations",
+            self, ITERATIONS
+        )
     }
 }
