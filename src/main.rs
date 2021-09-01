@@ -62,8 +62,9 @@ fn main() {
     println!("{}", input(r"\x.f x").n_reduce());
     println!("{}", input(r"\x.(\z. x) x").n_reduce());
 
-    input(r"(\x.x x)(\x.x x)").run();
-    input(r"(\x.x x x)(\x.x x)").run();
+    // input(r"(\x.x x)(\x.x x)").run();
+    input("(λx.λy.(λz.(λx.z x) (λy.z y)) (x y))").run();
+    input(r"\entry book . Cons entry book").run();
 }
 
 fn input(input: &'static str) -> Term {
@@ -72,11 +73,20 @@ fn input(input: &'static str) -> Term {
 impl Term {
     fn run(mut self) -> Self {
         println!("START {}", self);
-        self = self.a_conv();
-        println!("a_conv {}", self);
+        // self = self.a_conv();
+        // println!("a_conv {}", self);
+
+        let mut last_self;
+        loop {
+            last_self = self.clone();
+            self = self.n_reduce();
+            if last_self == self {
+                break;
+            }
+            println!("n_reduce {}", self);
+        }
 
         const ITERATIONS: usize = 10;
-        let mut last_self;
         for _ in 0..ITERATIONS {
             last_self = self.clone();
             self = self.b_reduce();
@@ -85,10 +95,9 @@ impl Term {
                 return self;
             }
             println!("b_reduce {}", self);
+
             self = self.subst();
             println!("subst {}", self);
-            self = self.n_reduce();
-            println!("n_reduce {}", self);
         }
         panic!(
             "run {} didn't terminate after {} iterations",
