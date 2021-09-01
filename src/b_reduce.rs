@@ -2,7 +2,7 @@ use crate::ast::*;
 
 impl Term {
     pub fn b_reduce(mut self) -> Self {
-        const ITERATIONS: usize = 10;
+        const ITERATIONS: usize = 100;
         for _ in 0..ITERATIONS {
             let last_self = self.clone();
             self = self.b_reduce_();
@@ -13,9 +13,6 @@ impl Term {
             self = self.subst();
         }
         panic!("b_reduce didn't terminate after {} iterations", ITERATIONS);
-    }
-    pub fn b_eq(&self, other: &Self) -> bool {
-        self.clone().b_reduce() == other.clone().b_reduce()
     }
 
     fn b_reduce_(self) -> Self {
