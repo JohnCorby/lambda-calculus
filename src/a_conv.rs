@@ -15,6 +15,7 @@ impl Term {
             Self::Var(var) => Self::Var(var.a_conv(bounded)),
             Self::Abs(abs) => Self::Abs(abs.a_conv(bounded, next)),
             Self::App(app) => Self::App(app.a_conv(bounded, next)),
+            Self::Subst(subst) => unreachable!("a_conv on subst {}", subst),
         }
     }
 }
@@ -31,15 +32,15 @@ impl Abs {
         bounded.insert(self.param, *next);
         *next += 1;
         self.param = self.param.a_conv(bounded);
-        self.body = self.body.a_conv_(bounded, next).into();
+        *self.body = self.body.a_conv_(bounded, next);
         bounded.remove(&self.param);
         self
     }
 }
 impl App {
     fn a_conv(mut self, bounded: &mut HashMap<Var, usize>, next: &mut usize) -> Self {
-        self.func = self.func.a_conv_(bounded, next).into();
-        self.arg = self.arg.a_conv_(bounded, next).into();
+        *self.func = self.func.a_conv_(bounded, next);
+        *self.arg = self.arg.a_conv_(bounded, next);
         self
     }
 }

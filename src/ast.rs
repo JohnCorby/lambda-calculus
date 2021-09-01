@@ -5,6 +5,7 @@ pub enum Term {
     Var(Var),
     Abs(Abs),
     App(App),
+    Subst(Subst),
 }
 impl Display for Term {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
@@ -12,6 +13,7 @@ impl Display for Term {
             Self::Var(var) => Display::fmt(var, f),
             Self::Abs(abs) => Display::fmt(abs, f),
             Self::App(app) => Display::fmt(app, f),
+            Self::Subst(subst) => Display::fmt(subst, f),
         }
     }
 }
@@ -61,6 +63,27 @@ impl Display for App {
     }
 }
 impl Debug for App {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        Display::fmt(self, f)
+    }
+}
+
+#[derive(Clone, PartialEq)]
+pub struct Subst {
+    pub in_term: Box<Term>,
+    pub from_var: Var,
+    pub to_term: Box<Term>,
+}
+impl Display for Subst {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "{{{} := {} in {}}}",
+            self.from_var, self.to_term, self.in_term
+        )
+    }
+}
+impl Debug for Subst {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         Display::fmt(self, f)
     }

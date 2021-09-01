@@ -5,7 +5,6 @@
 
 use crate::ast::Term;
 use crate::parse::{Kind, Node};
-use std::collections::HashMap;
 
 mod a_conv;
 mod ast;

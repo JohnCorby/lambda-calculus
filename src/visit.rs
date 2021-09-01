@@ -5,7 +5,7 @@
 use crate::ast::*;
 use crate::parse::{Kind, Node};
 
-trait Visit {
+pub trait Visit {
     fn visit(node: Node) -> Self;
 }
 impl Node {

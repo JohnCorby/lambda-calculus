@@ -7,6 +7,7 @@ impl Term {
             Self::Var(var) => var.free_vars(),
             Self::Abs(abs) => abs.free_vars(),
             Self::App(app) => app.free_vars(),
+            Self::Subst(subst) => unreachable!("free_vars on subst {}", subst),
         }
     }
 }
