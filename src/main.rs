@@ -18,6 +18,9 @@ mod subst;
 mod visit;
 
 fn main() {
+    println!("{}", input(r"\x y z w.N"));
+    println!("{}", input(r"\x.\y.\z.\w.N"));
+
     println!("{}", input("M N P"));
     println!("{}", input("M N P").a_conv());
     println!("{}", input("λx. M N x"));
@@ -58,9 +61,49 @@ fn main() {
 
     println!("{}", input(r"\x.f x").n_reduce());
     println!("{}", input(r"\x.(\z. x) x").n_reduce());
+
+    input(r"(\x.x x)(\x.x x)").run();
 }
 
 fn input(input: &'static str) -> Term {
     Node::parse(input, Kind::input).unwrap().visit()
 }
-fn run(term: Term) {}
+impl Term {
+    fn run(mut self) -> Self {
+        println!("START {}", self);
+        self = self.a_conv();
+        println!("a_conv {}", self);
+
+        const ITERATIONS: usize = 10;
+        let mut terminated = false;
+        let mut last_self;
+        for _ in 0..ITERATIONS {
+            last_self = self.clone();
+            self = self.n_reduce();
+            self = self.b_reduce();
+            if last_self == self {
+                terminated = true;
+                break;
+            }
+            println!("n_reduce, b_reduce {}", self);
+
+            for _ in 0..ITERATIONS {
+                last_self = self.clone();
+                self = self.subst();
+                if last_self == self {
+                    break;
+                }
+                println!("subst {}", self);
+            }
+        }
+        if !terminated {
+            panic!(
+                "run {} didn't terminate after {} iterations",
+                self, ITERATIONS
+            )
+        }
+
+        println!("END {}", self);
+        self
+    }
+}

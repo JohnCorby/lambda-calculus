@@ -32,10 +32,18 @@ impl Visit for Var {
 impl Visit for Abs {
     fn visit(node: Node) -> Self {
         let mut nodes = node.children();
-        Self {
-            param: nodes.next().unwrap().visit(),
+        let mut params = nodes.next().unwrap().children().rev();
+        let mut abs = Self {
+            param: params.next().unwrap().visit(),
             body: nodes.next().unwrap().visit::<Term>().into(),
+        };
+        for param in params {
+            abs = Self {
+                param: param.visit(),
+                body: Term::Abs(abs).into(),
+            }
         }
+        abs
     }
 }
 impl Visit for App {
