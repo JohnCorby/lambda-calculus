@@ -16,6 +16,8 @@ mod visit;
 
 fn main() {
     tests::factorial();
+    // panics
+    tests::infinite_recursion();
 }
 
 #[allow(dead_code)]
@@ -37,9 +39,9 @@ mod tests {
             const ITERATIONS: usize = 1000;
             let mut terminated = false;
             for _ in 0..ITERATIONS {
-                let last_term = term.clone();
-                term = term.b_reduce();
-                if last_term == term {
+                let mut changed = false;
+                term = term.b_reduce(&mut changed);
+                if !changed {
                     terminated = true;
                     break;
                 }
@@ -50,9 +52,9 @@ mod tests {
             }
 
             loop {
-                let last_term = term.clone();
-                term = term.n_reduce();
-                if last_term == term {
+                let mut changed = false;
+                term = term.n_reduce(&mut changed);
+                if !changed {
                     break;
                 }
                 println!("- n_reduce - {term}");
@@ -175,6 +177,12 @@ mod tests {
         test(r"(\x.z)((\w.w w w)(\w.w w w))", "z");
     }
 
+    #[test]
+    #[should_panic]
+    fn non_terminating() {
+        test(r"(\x.x x)(\x.x x)", "lol");
+    }
+
     const I: &str = "(λx.x)";
     const K: &str = "(λx.λy.x)";
     const S: &str = "(λx.λy.λz.x z (y z))";
@@ -184,9 +192,7 @@ mod tests {
     const U: &str = "(λx.x x)";
     const O: &str = formatcp!("({U} {U})");
     const Y: &str = "(λg.(λx.g (x x)) (λx.g (x x)))";
-    #[test]
-    #[should_panic]
-    fn recursion() {
+    pub fn infinite_recursion() {
         const G: &str = formatcp!(r"(\self, n. self ({SUCC} n))");
         test(formatcp!("({Y} {G}) {_0}"), "lol");
     }

@@ -1,28 +1,31 @@
 use crate::ast::*;
 
 impl Term {
-    pub fn b_reduce(self) -> Self {
+    pub fn b_reduce(self, changed: &mut bool) -> Self {
         match self {
             Self::Var(var) => Self::Var(var),
-            Self::Abs(abs) => Self::Abs(abs.b_reduce()),
-            Self::App(app) => app.b_reduce(),
+            Self::Abs(abs) => Self::Abs(abs.b_reduce(changed)),
+            Self::App(app) => app.b_reduce(changed),
         }
     }
 }
 impl Abs {
-    fn b_reduce(mut self) -> Self {
-        *self.body = self.body.b_reduce();
+    fn b_reduce(mut self, changed: &mut bool) -> Self {
+        *self.body = self.body.b_reduce(changed);
         self
     }
 }
 impl App {
-    fn b_reduce(mut self) -> Term {
+    fn b_reduce(mut self, changed: &mut bool) -> Term {
         match *self.left {
-            Term::Abs(abs) => abs.body.subst(abs.param, *self.right),
+            Term::Abs(abs) => {
+                *changed = true;
+                abs.body.subst(abs.param, *self.right)
+            }
 
             _ => {
-                *self.left = self.left.b_reduce();
-                *self.right = self.right.b_reduce();
+                *self.left = self.left.b_reduce(changed);
+                *self.right = self.right.b_reduce(changed);
                 Term::App(self)
             }
         }
