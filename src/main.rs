@@ -33,17 +33,29 @@ mod tests {
             term = term.a_conv();
             println!("- a_conv -   {term}");
 
-            term = term.b_reduce();
-            println!("- b_reduce - {term}");
+            const ITERATIONS: usize = 100;
+            let mut terminated = false;
+            for _ in 0..ITERATIONS {
+                let last_term = term.clone();
+                term = term.b_reduce();
+                if last_term == term {
+                    terminated = true;
+                    break;
+                }
+                println!("- b_reduce - {term}");
+            }
+            if !terminated {
+                panic!("b_reduce didn't terminate after {} iterations", ITERATIONS)
+            }
 
-            // loop {
-            //     let last_term = term.clone();
-            //     term = term.n_reduce();
-            //     if last_term == term {
-            //         break;
-            //     }
-            //     println!("- n_reduce - {term}");
-            // }
+            loop {
+                let last_term = term.clone();
+                term = term.n_reduce();
+                if last_term == term {
+                    break;
+                }
+                println!("- n_reduce - {term}");
+            }
 
             term = term.a_conv();
             println!("- a_conv -   {term}");
@@ -125,6 +137,9 @@ mod tests {
 
         test(formatcp!("{NOT} {FALSE}"), TRUE);
         test(formatcp!("{NOT} {TRUE}"), FALSE);
+
+        test(formatcp!("{IF_THEN_ELSE} {TRUE} {N2} {N3}"), N2);
+        test(formatcp!("{IF_THEN_ELSE} {FALSE} {N2} {N3}"), N3);
     }
     const IS_ZERO: &str = formatcp!(r"(\n.n (\x.{FALSE}) {TRUE})");
     #[test]
@@ -155,5 +170,7 @@ mod tests {
     }
 
     #[test]
-    fn misc() {}
+    fn normal_order_reduction() {
+        test(r"(\x.z)((\w.w w w)(\w.w w w))", "z");
+    }
 }

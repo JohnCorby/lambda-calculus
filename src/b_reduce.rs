@@ -1,20 +1,7 @@
 use crate::ast::*;
 
 impl Term {
-    pub fn b_reduce(mut self) -> Self {
-        const ITERATIONS: usize = 100;
-        for _ in 0..ITERATIONS {
-            let last_self = self.clone();
-            self = self.b_reduce_();
-            if last_self == self {
-                return self;
-            }
-            println!("- b_reduce - {self}");
-        }
-        panic!("b_reduce didn't terminate after {} iterations", ITERATIONS);
-    }
-
-    fn b_reduce_(self) -> Self {
+    pub fn b_reduce(self) -> Self {
         match self {
             Self::Var(var) => Self::Var(var),
             Self::Abs(abs) => Self::Abs(abs.b_reduce()),
@@ -24,7 +11,7 @@ impl Term {
 }
 impl Abs {
     fn b_reduce(mut self) -> Self {
-        *self.body = self.body.b_reduce_();
+        *self.body = self.body.b_reduce();
         self
     }
 }
@@ -34,8 +21,8 @@ impl App {
             Term::Abs(abs) => abs.body.subst(abs.param, *self.right),
 
             _ => {
-                *self.left = self.left.b_reduce_();
-                *self.right = self.right.b_reduce_();
+                *self.left = self.left.b_reduce();
+                *self.right = self.right.b_reduce();
                 Term::App(self)
             }
         }

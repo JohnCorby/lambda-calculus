@@ -1,9 +1,6 @@
 use crate::ast::*;
 
 impl Term {
-    /// yeah i dont really like this one
-    ///
-    /// so i dont use it
     pub fn n_reduce(self) -> Self {
         match self {
             Self::Var(var) => Self::Var(var),
@@ -22,7 +19,7 @@ impl Abs {
                         left,
                         right: box Term::Var(right_var),
                     }),
-            } if param == right_var && !right_var.is_free_in(&left) => *left,
+            } if param == right_var && !param.is_free_in(&left) => *left,
 
             _ => {
                 *self.body = self.body.n_reduce();
