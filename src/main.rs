@@ -14,9 +14,10 @@ mod n_reduce;
 mod parse;
 mod visit;
 
-fn main() {}
+fn main() {
+    tests::factorial();
+}
 
-#[cfg(test)]
 #[allow(dead_code)]
 mod tests {
     use crate::ast::Term;
@@ -33,7 +34,7 @@ mod tests {
             term = term.a_conv();
             println!("- a_conv -   {term}");
 
-            const ITERATIONS: usize = 100;
+            const ITERATIONS: usize = 1000;
             let mut terminated = false;
             for _ in 0..ITERATIONS {
                 let last_term = term.clone();
@@ -71,48 +72,48 @@ mod tests {
         println!();
     }
 
-    const N0: &str = r"(\f,x.x)";
-    const N1: &str = r"(\f,x.f x)";
-    const N2: &str = r"(\f,x.f (f x))";
-    const N3: &str = r"(\f,x.f (f (f x)))";
+    const _0: &str = r"(\f,x.x)";
+    const _1: &str = r"(\f,x.f x)";
+    const _2: &str = r"(\f,x.f (f x))";
+    const _3: &str = r"(\f,x.f (f (f x)))";
 
     const SUCC: &str = "(λn.λf.λx.f (n f x))";
 
-    const N4: &str = formatcp!("({SUCC} {N3})");
-    const N5: &str = formatcp!("({SUCC} {N4})");
-    const N6: &str = formatcp!("({SUCC} {N5})");
-    const N7: &str = formatcp!("({SUCC} {N6})");
-    const N8: &str = formatcp!("({SUCC} {N7})");
+    const _4: &str = formatcp!("({SUCC} {_3})");
+    const _5: &str = formatcp!("({SUCC} {_4})");
+    const _6: &str = formatcp!("({SUCC} {_5})");
+    const _7: &str = formatcp!("({SUCC} {_6})");
+    const _8: &str = formatcp!("({SUCC} {_7})");
     #[test]
     fn succ() {
-        test(formatcp!("{SUCC} {N0}"), N1);
-        test(formatcp!("{SUCC} ({SUCC} {N0})"), N2);
+        test(formatcp!("{SUCC} {_0}"), _1);
+        test(formatcp!("{SUCC} ({SUCC} {_0})"), _2);
     }
-    const PLUS: &str = formatcp!("(λm.λn.m {SUCC} n)");
+    const ADD: &str = formatcp!("(λm.λn.m {SUCC} n)");
     #[test]
-    fn plus() {
-        test(formatcp!("{PLUS} {N1} {N2}"), N3);
-        test(formatcp!("{PLUS} {N2} {N2}"), N4);
+    fn add() {
+        test(formatcp!("{ADD} {_1} {_2}"), _3);
+        test(formatcp!("{ADD} {_2} {_2}"), _4);
     }
-    const MULT: &str = formatcp!("(λm.λn.m ({PLUS} n) {N0})");
+    const MUL: &str = formatcp!("(λm.λn.m ({ADD} n) {_0})");
     #[test]
-    fn mult() {
-        test(formatcp!("{MULT} {N2} {N3}"), N6);
-        test(formatcp!("{MULT} {N4} {N2}"), N8);
+    fn mul() {
+        test(formatcp!("{MUL} {_2} {_3}"), _6);
+        test(formatcp!("{MUL} {_4} {_2}"), _8);
     }
     const POW: &str = "(λb.λe.e b)";
     #[test]
     fn pow() {
-        test(formatcp!("{POW} {N2} {N3}"), N8);
-        test(formatcp!("{POW} {N1} {N3}"), N1);
+        test(formatcp!("{POW} {_2} {_3}"), _8);
+        test(formatcp!("{POW} {_1} {_3}"), _1);
     }
 
     const PRED: &str = "(λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u))";
     const SUB: &str = formatcp!("(λm.λn.n {PRED} m)");
     #[test]
     fn sub() {
-        test(formatcp!("{SUB} {N3} {N1}"), N2);
-        test(formatcp!("{SUB} {N2} {N5}"), N0);
+        test(formatcp!("{SUB} {_3} {_1}"), _2);
+        test(formatcp!("{SUB} {_2} {_5}"), _0);
     }
 
     const TRUE: &str = "(λx.λy.x)";
@@ -138,21 +139,21 @@ mod tests {
         test(formatcp!("{NOT} {FALSE}"), TRUE);
         test(formatcp!("{NOT} {TRUE}"), FALSE);
 
-        test(formatcp!("{IF_THEN_ELSE} {TRUE} {N2} {N3}"), N2);
-        test(formatcp!("{IF_THEN_ELSE} {FALSE} {N2} {N3}"), N3);
+        test(formatcp!("{IF_THEN_ELSE} {TRUE} {_2} {_3}"), _2);
+        test(formatcp!("{IF_THEN_ELSE} {FALSE} {_2} {_3}"), _3);
     }
     const IS_ZERO: &str = formatcp!(r"(\n.n (\x.{FALSE}) {TRUE})");
     #[test]
     fn is_zero() {
-        test(formatcp!("{IS_ZERO} {N0}"), TRUE);
-        test(formatcp!("{IS_ZERO} {N3}"), FALSE);
+        test(formatcp!("{IS_ZERO} {_0}"), TRUE);
+        test(formatcp!("{IS_ZERO} {_3}"), FALSE);
     }
     const LEQ: &str = formatcp!(r"(\m,n.{IS_ZERO} ({SUB} m n))");
     #[test]
     fn leq() {
-        test(formatcp!("{LEQ} {N1} {N2}"), TRUE);
-        test(formatcp!("{LEQ} {N2} {N1}"), FALSE);
-        test(formatcp!("{LEQ} {N1} {N1}"), TRUE);
+        test(formatcp!("{LEQ} {_1} {_2}"), TRUE);
+        test(formatcp!("{LEQ} {_2} {_1}"), FALSE);
+        test(formatcp!("{LEQ} {_1} {_1}"), TRUE);
     }
 
     const PAIR: &str = r"(\x,y,f.f x y)";
@@ -164,8 +165,8 @@ mod tests {
     fn pair() {
         const MAPPING: &str = formatcp!(r"(\x.{PAIR} ({SECOND} x) ({SUCC} ({SECOND} x)))");
         test(
-            formatcp!("{MAPPING} ({PAIR} {N1} {N4})"),
-            formatcp!("{PAIR} {N4} {N5}"),
+            formatcp!("{MAPPING} ({PAIR} {_1} {_4})"),
+            formatcp!("{PAIR} {_4} {_5}"),
         )
     }
 
@@ -187,6 +188,13 @@ mod tests {
     #[should_panic]
     fn recursion() {
         const G: &str = formatcp!(r"(\self, n. self ({SUCC} n))");
-        test(formatcp!("({Y} {G}) {N0}"), "lol");
+        test(formatcp!("({Y} {G}) {_0}"), "lol");
+    }
+    pub fn factorial() {
+        const G: &str = formatcp!(
+            r"(    \self, n. ({IF_THEN_ELSE} (({LEQ} n {_0}) {_1} ({MUL} n (self ({PRED} n)))))    )"
+        );
+        const _24: &str = formatcp!(r"({MUL} {_4} {_6})");
+        test(formatcp!("({Y} {G}) {_4}"), _24);
     }
 }
