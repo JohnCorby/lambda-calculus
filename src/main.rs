@@ -59,10 +59,10 @@ mod tests {
         println!();
     }
 
-    const N0: &str = r"(\f x.x)";
-    const N1: &str = r"(\f x.f x)";
-    const N2: &str = r"(\f x.f (f x))";
-    const N3: &str = r"(\f x.f (f (f x)))";
+    const N0: &str = r"(\f,x.x)";
+    const N1: &str = r"(\f,x.f x)";
+    const N2: &str = r"(\f,x.f (f x))";
+    const N3: &str = r"(\f,x.f (f (f x)))";
 
     const SUCC: &str = "(λn.λf.λx.f (n f x))";
 
@@ -106,10 +106,10 @@ mod tests {
     const TRUE: &str = "(λx.λy.x)";
     const FALSE: &str = "(λx.λy.y)";
 
-    const AND: &str = r"(\p q.p q p)";
-    const OR: &str = r"(\p q.p p q)";
+    const AND: &str = r"(\p,q.p q p)";
+    const OR: &str = r"(\p,q.p p q)";
     const NOT: &str = formatcp!(r"(\p.p {FALSE} {TRUE})");
-    const IF_THEN_ELSE: &str = r"(\p a b.p a b)";
+    const IF_THEN_ELSE: &str = r"(\p,a,b.p a b)";
 
     #[test]
     fn logic() {
@@ -132,7 +132,7 @@ mod tests {
         test(formatcp!("{IS_ZERO} {N0}"), TRUE);
         test(formatcp!("{IS_ZERO} {N3}"), FALSE);
     }
-    const LEQ: &str = formatcp!(r"(\m n.{IS_ZERO} ({SUB} m n))");
+    const LEQ: &str = formatcp!(r"(\m,n.{IS_ZERO} ({SUB} m n))");
     #[test]
     fn leq() {
         test(formatcp!("{LEQ} {N1} {N2}"), TRUE);
@@ -140,7 +140,7 @@ mod tests {
         test(formatcp!("{LEQ} {N1} {N1}"), TRUE);
     }
 
-    const PAIR: &str = r"(\x y f.f x y)";
+    const PAIR: &str = r"(\x,y,f.f x y)";
     const FIRST: &str = formatcp!(r"(\p.p {TRUE})");
     const SECOND: &str = formatcp!(r"(\p.p {FALSE})");
     const NIL: &str = formatcp!(r"(\x.{TRUE})");
@@ -153,4 +153,7 @@ mod tests {
             formatcp!("{PAIR} {N4} {N5}"),
         )
     }
+
+    #[test]
+    fn misc() {}
 }
