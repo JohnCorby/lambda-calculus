@@ -1,7 +1,7 @@
 use crate::ast::*;
 
 impl Term {
-    pub fn subst(self) -> Self {
+    fn subst(self) -> Self {
         match self {
             Self::Var(var) => Self::Var(var),
             Self::Abs(abs) => Self::Abs(abs.subst()),
@@ -24,7 +24,7 @@ impl App {
     }
 }
 impl Subst {
-    fn subst(self) -> Term {
+    pub fn subst(self) -> Term {
         use Term::*;
         match *self.in_term {
             Var(in_var) if in_var != self.from_var => Var(in_var),

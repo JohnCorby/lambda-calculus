@@ -9,10 +9,7 @@ impl Term {
             if last_self == self {
                 return self;
             }
-            // println!("- b_reduce - {self}");
-
-            self = self.subst();
-            // println!("- subst -    {self}");
+            println!("- b_reduce - {self}");
         }
         panic!("b_reduce didn't terminate after {} iterations", ITERATIONS);
     }
@@ -35,11 +32,12 @@ impl Abs {
 impl App {
     fn b_reduce(mut self) -> Term {
         match *self.left {
-            Term::Abs(abs) => Term::Subst(Subst {
+            Term::Abs(abs) => Subst {
                 in_term: abs.body,
                 from_var: abs.param,
                 to_term: self.right,
-            }),
+            }
+            .subst(),
 
             _ => {
                 *self.left = self.left.b_reduce_();
