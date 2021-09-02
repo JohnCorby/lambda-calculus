@@ -78,8 +78,8 @@ impl Display for Subst {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         write!(
             f,
-            "{{{} = {} in {}}}",
-            self.from_var, self.to_term, self.in_term
+            "{{{} | {} = {}}}",
+            self.in_term, self.from_var, self.to_term
         )
     }
 }

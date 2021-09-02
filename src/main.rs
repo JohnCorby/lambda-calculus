@@ -5,10 +5,6 @@
 #![feature(box_patterns)]
 #![feature(format_args_capture)]
 
-use crate::ast::Term;
-use crate::intern::Intern;
-use crate::parse::{Kind, Node};
-
 mod a_conv;
 mod ast;
 mod b_reduce;
@@ -19,113 +15,143 @@ mod parse;
 mod subst;
 mod visit;
 
-fn main() {
-    // input(r"(\x.x x)(\x.x x)").run();
-    // input("(λx.λy.(λz.(λx.z x) (λy.z y)) (x y))").eval();
-    // input(r"\entry book . Cons entry book").eval();
+fn main() {}
 
-    let n0 = r"(\f x.x)";
-    let n1 = r"(\f x.f x)";
-    let n2 = r"(\f x.f (f x))";
-    let n3 = r"(\f x.f (f (f x)))";
+#[cfg(test)]
+#[allow(dead_code)]
+mod tests {
+    use crate::ast::Term;
+    use crate::parse::{Kind, Node};
+    use const_format::*;
 
-    let succ = "(λn.λf.λx.f (n f x))";
-    let plus = format!("(λm.λn.m {succ} n)");
-    let mult = format!("(λm.λn.m ({plus} n) {n0})");
-    let pow = "(λb.λe.e b)";
+    fn test(left: &'static str, right: &'static str) {
+        fn eval(input: &'static str) -> Term {
+            println!("- input -    {input}");
+            let node = Node::parse(input, Kind::input).unwrap();
+            println!("- node -     {node}");
+            let mut term = node.visit::<Term>();
+            println!("- term -     {term}");
+            term = term.a_conv();
+            println!("- a_conv -   {term}");
 
-    let n4 = format!("({succ} {n3})");
-    let n5 = format!("({succ} {n4})");
-    let n6 = format!("({succ} {n5})");
-    let n7 = format!("({succ} {n6})");
-    let n8 = format!("({succ} {n7})");
+            term = term.b_reduce();
+            println!("- b_reduce - {term}");
 
-    let pred = "(λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u))";
-    let sub = format!("(λm.λn.n {pred} m)");
+            // loop {
+            //     let last_term = term.clone();
+            //     term = term.n_reduce();
+            //     if last_term == term {
+            //         break;
+            //     }
+            //     println!("- n_reduce - {term}");
+            // }
 
-    let btrue = "(λx.λy.x)";
-    let bfalse = "(λx.λy.y)";
+            term = term.a_conv();
+            println!("- a_conv -   {term}");
+            term
+        }
 
-    let and = r"(\p q.p q p)";
-    let or = r"(\p q.p p q)";
-    let not = format!(r"(\p.p {bfalse} {btrue})");
-    let if_then_else = r"(\p a b.p a b)";
+        println!("--- TEST ---");
+        println!("--- left ---");
+        let term1 = eval(left);
+        println!("--- right ---");
+        let term2 = eval(right);
+        assert_eq!(term1, term2);
+        println!();
+    }
 
-    let is_zero = format!(r"(\n.n (\x.{bfalse}) {btrue})");
-    let leq = format!(r"(\m n.{is_zero} ({sub} m n))");
+    const N0: &str = r"(\f x.x)";
+    const N1: &str = r"(\f x.f x)";
+    const N2: &str = r"(\f x.f (f x))";
+    const N3: &str = r"(\f x.f (f (f x)))";
 
-    let pair = r"(\x y f.f x y)";
-    let first = format!(r"(\p.p {btrue})");
-    let second = format!(r"(\p.p {bfalse})");
-    let nil = format!(r"(\x.{btrue})");
-    let is_null = format!(r"(\p.p (\x y.{bfalse}))");
+    const SUCC: &str = "(λn.λf.λx.f (n f x))";
 
-    assert_eq!(
-        input(format!("{succ} ({succ} {n0})")).eval(),
-        input(n2).eval()
-    );
-    assert_eq!(input(format!("{plus} {n1} {n2}")).eval(), input(n3).eval());
-    assert_eq!(input(format!("{mult} {n2} {n3}")).eval(), input(n6).eval());
+    const N4: &str = formatcp!("({SUCC} {N3})");
+    const N5: &str = formatcp!("({SUCC} {N4})");
+    const N6: &str = formatcp!("({SUCC} {N5})");
+    const N7: &str = formatcp!("({SUCC} {N6})");
+    const N8: &str = formatcp!("({SUCC} {N7})");
+    #[test]
+    fn succ() {
+        test(formatcp!("{SUCC} {N0}"), N1);
+        test(formatcp!("{SUCC} ({SUCC} {N0})"), N2);
+    }
+    const PLUS: &str = formatcp!("(λm.λn.m {SUCC} n)");
+    #[test]
+    fn plus() {
+        test(formatcp!("{PLUS} {N1} {N2}"), N3);
+        test(formatcp!("{PLUS} {N2} {N2}"), N4);
+    }
+    const MULT: &str = formatcp!("(λm.λn.m ({PLUS} n) {N0})");
+    #[test]
+    fn mult() {
+        test(formatcp!("{MULT} {N2} {N3}"), N6);
+        test(formatcp!("{MULT} {N4} {N2}"), N8);
+    }
+    const POW: &str = "(λb.λe.e b)";
+    #[test]
+    fn pow() {
+        test(formatcp!("{POW} {N2} {N3}"), N8);
+        test(formatcp!("{POW} {N1} {N3}"), N1);
+    }
 
-    // assert_eq!(
-    //     input(format!("{pow} {n1} {n3}")).eval(),
-    //     input(n1).eval()
-    // );
+    const PRED: &str = "(λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u))";
+    const SUB: &str = formatcp!("(λm.λn.n {PRED} m)");
+    #[test]
+    fn sub() {
+        test(formatcp!("{SUB} {N3} {N1}"), N2);
+        test(formatcp!("{SUB} {N2} {N5}"), N0);
+    }
 
-    assert_eq!(input(format!("{sub} {n3} {n1}")).eval(), input(n2).eval());
+    const TRUE: &str = "(λx.λy.x)";
+    const FALSE: &str = "(λx.λy.y)";
 
-    assert_eq!(
-        input(format!("{and} {btrue} {bfalse}")).eval(),
-        input(bfalse).eval()
-    );
+    const AND: &str = r"(\p q.p q p)";
+    const OR: &str = r"(\p q.p p q)";
+    const NOT: &str = formatcp!(r"(\p.p {FALSE} {TRUE})");
+    const IF_THEN_ELSE: &str = r"(\p a b.p a b)";
 
-    assert_eq!(input(format!("{is_zero} {n0}")).eval(), input(btrue).eval(),);
+    #[test]
+    fn logic() {
+        test(formatcp!("{AND} {FALSE} {FALSE}"), FALSE);
+        test(formatcp!("{AND} {TRUE} {FALSE}"), FALSE);
+        test(formatcp!("{AND} {FALSE} {TRUE}"), FALSE);
+        test(formatcp!("{AND} {TRUE} {TRUE}"), TRUE);
 
-    assert_eq!(
-        input(format!("{leq} {n1} {n2}")).eval(),
-        input(btrue).eval(),
-    );
-    assert_eq!(
-        input(format!("{leq} {n2} {n1}")).eval(),
-        input(bfalse).eval(),
-    );
-    assert_eq!(
-        input(format!("{leq} {n1} {n1}")).eval(),
-        input(btrue).eval(),
-    );
+        test(formatcp!("{OR} {FALSE} {FALSE}"), FALSE);
+        test(formatcp!("{OR} {TRUE} {FALSE}"), TRUE);
+        test(formatcp!("{OR} {FALSE} {TRUE}"), TRUE);
+        test(formatcp!("{OR} {TRUE} {TRUE}"), TRUE);
 
-    let mapping = format!(r"(\x.{pair} ({second} x) ({succ} ({second} x)))");
-    assert_eq!(
-        input(format!("{mapping} ({pair} {n1} {n2})")).eval(),
-        input(format!("{pair} {n2} {n3}")).eval()
-    )
-}
+        test(formatcp!("{NOT} {FALSE}"), TRUE);
+        test(formatcp!("{NOT} {TRUE}"), FALSE);
+    }
+    const IS_ZERO: &str = formatcp!(r"(\n.n (\x.{FALSE}) {TRUE})");
+    #[test]
+    fn is_zero() {
+        test(formatcp!("{IS_ZERO} {N0}"), TRUE);
+        test(formatcp!("{IS_ZERO} {N3}"), FALSE);
+    }
+    const LEQ: &str = formatcp!(r"(\m n.{IS_ZERO} ({SUB} m n))");
+    #[test]
+    fn leq() {
+        test(formatcp!("{LEQ} {N1} {N2}"), TRUE);
+        test(formatcp!("{LEQ} {N2} {N1}"), FALSE);
+        test(formatcp!("{LEQ} {N1} {N1}"), TRUE);
+    }
 
-fn input(input: impl ToString) -> Term {
-    Node::parse(input.to_string().intern(), Kind::input)
-        .unwrap()
-        .visit()
-}
-impl Term {
-    fn eval(mut self) -> Self {
-        println!("START {self}");
-        // self = self.a_conv();
-        // println!("a_conv {}", self);
-
-        // loop {
-        //     let last_self = self.clone();
-        //     self = self.n_reduce();
-        //     if last_self == self {
-        //         break;
-        //     }
-        //     println!("n_reduce {}", self);
-        // }
-
-        self = self.b_reduce();
-        // println!("b_reduce {}", self);
-
-        // self = self.a_conv();
-        println!("END {self}");
-        self
+    const PAIR: &str = r"(\x y f.f x y)";
+    const FIRST: &str = formatcp!(r"(\p.p {TRUE})");
+    const SECOND: &str = formatcp!(r"(\p.p {FALSE})");
+    const NIL: &str = formatcp!(r"(\x.{TRUE})");
+    const IS_NULL: &str = formatcp!(r"(\p.p (\x y.{FALSE}))");
+    #[test]
+    fn pair() {
+        const MAPPING: &str = formatcp!(r"(\x.{PAIR} ({SECOND} x) ({SUCC} ({SECOND} x)))");
+        test(
+            formatcp!("{MAPPING} ({PAIR} {N1} {N4})"),
+            formatcp!("{PAIR} {N4} {N5}"),
+        )
     }
 }

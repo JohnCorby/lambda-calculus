@@ -5,7 +5,7 @@ abs = { ("λ" | "\\") ~ params ~ "." ~ term }
 params = { var+ }
 app = { app_term{2, } } // left assoc
 app_term = _{ abs | var | "(" ~ term ~ ")" }
-var = @{ ASCII_ALPHA ~ (ASCII_ALPHA | ASCII_DIGIT | "_" )* }
+var = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHA | ASCII_DIGIT | "_" )* }
 
 
 

@@ -9,8 +9,10 @@ impl Term {
             if last_self == self {
                 return self;
             }
+            // println!("- b_reduce - {self}");
 
             self = self.subst();
+            // println!("- subst -    {self}");
         }
         panic!("b_reduce didn't terminate after {} iterations", ITERATIONS);
     }

@@ -3,7 +3,7 @@ name = "lambda-calculus"
 version = "0.1.0"
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# See more keys AND their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 pest = "*"
@@ -11,3 +11,4 @@ pest_derive = "*"
 console = "*"
 anyhow = "*"
 parking_lot = { version = "*", features = ["nightly"] }
+const_format = "*"
