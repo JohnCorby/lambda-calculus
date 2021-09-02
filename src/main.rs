@@ -173,4 +173,20 @@ mod tests {
     fn normal_order_reduction() {
         test(r"(\x.z)((\w.w w w)(\w.w w w))", "z");
     }
+
+    const I: &str = "(λx.x)";
+    const K: &str = "(λx.λy.x)";
+    const S: &str = "(λx.λy.λz.x z (y z))";
+    const B: &str = "(λx.λy.λz.x (y z))";
+    const C: &str = "(λx.λy.λz.x z y)";
+    const W: &str = "(λx.λy.x y y)";
+    const U: &str = "(λx.x x)";
+    const O: &str = formatcp!("({U} {U})");
+    const Y: &str = "(λg.(λx.g (x x)) (λx.g (x x)))";
+    #[test]
+    #[should_panic]
+    fn recursion() {
+        const G: &str = formatcp!(r"(\self, n. self ({SUCC} n))");
+        test(formatcp!("({Y} {G}) {N0}"), "lol");
+    }
 }
