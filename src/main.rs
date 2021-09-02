@@ -12,7 +12,6 @@ mod free_vars;
 mod intern;
 mod n_reduce;
 mod parse;
-mod subst;
 mod visit;
 
 fn main() {}

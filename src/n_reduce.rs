@@ -9,7 +9,6 @@ impl Term {
             Self::Var(var) => Self::Var(var),
             Self::Abs(abs) => abs.n_reduce(),
             Self::App(app) => Self::App(app.n_reduce()),
-            Self::Subst(subst) => unreachable!("n_reduce on subst {}", subst),
         }
     }
 }

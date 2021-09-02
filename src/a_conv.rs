@@ -12,7 +12,6 @@ impl Term {
             Self::Var(var) => Self::Var(var.a_conv(scopes)),
             Self::Abs(abs) => Self::Abs(abs.a_conv(scopes, num)),
             Self::App(app) => Self::App(app.a_conv(scopes, num)),
-            Self::Subst(subst) => unreachable!("a_conv on subst {}", subst),
         }
     }
 }
